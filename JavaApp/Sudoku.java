@@ -2,128 +2,197 @@ import java.io.*;
 import java.util.*;
 
 public class Sudoku{
-	
+	private ArrayList<ArrayList<ArrayList<Integer>>> sudokuBoard;
+	private ArrayList<ArrayList<Integer>> executionQueue;
+	/*===========================
+		Sudoku Constructor 
+	============================*/
 	public Sudoku(){
-		int[] c1r1={1,2,3,4,5,6,7,8,9};
-		int[] c1r2={1,2,3,4,5,6,7,8,9};
-		int[] c1r3={1,2,3,4,5,6,7,8,9};
-		int[] c1r4={1,2,3,4,5,6,7,8,9};
-		int[] c1r5={1,2,3,4,5,6,7,8,9};
-		int[] c1r6={1,2,3,4,5,6,7,8,9};
-		int[] c1r7={1,2,3,4,5,6,7,8,9};
-		int[] c1r8={1,2,3,4,5,6,7,8,9};
-		int[] c1r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c2r1={1,2,3,4,5,6,7,8,9};
-		int[] c2r2={1,2,3,4,5,6,7,8,9};
-		int[] c2r3={1,2,3,4,5,6,7,8,9};
-		int[] c2r4={1,2,3,4,5,6,7,8,9};
-		int[] c2r5={1,2,3,4,5,6,7,8,9};
-		int[] c2r6={1,2,3,4,5,6,7,8,9};
-		int[] c2r7={1,2,3,4,5,6,7,8,9};
-		int[] c2r8={1,2,3,4,5,6,7,8,9};
-		int[] c2r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c3r1={1,2,3,4,5,6,7,8,9};
-		int[] c3r2={1,2,3,4,5,6,7,8,9};
-		int[] c3r3={1,2,3,4,5,6,7,8,9};
-		int[] c3r4={1,2,3,4,5,6,7,8,9};
-		int[] c3r5={1,2,3,4,5,6,7,8,9};
-		int[] c3r6={1,2,3,4,5,6,7,8,9};
-		int[] c3r7={1,2,3,4,5,6,7,8,9};
-		int[] c3r8={1,2,3,4,5,6,7,8,9};
-		int[] c3r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c4r1={1,2,3,4,5,6,7,8,9};
-		int[] c4r2={1,2,3,4,5,6,7,8,9};
-		int[] c4r3={1,2,3,4,5,6,7,8,9};
-		int[] c4r4={1,2,3,4,5,6,7,8,9};
-		int[] c4r5={1,2,3,4,5,6,7,8,9};
-		int[] c4r6={1,2,3,4,5,6,7,8,9};
-		int[] c4r7={1,2,3,4,5,6,7,8,9};
-		int[] c4r8={1,2,3,4,5,6,7,8,9};
-		int[] c4r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c5r1={1,2,3,4,5,6,7,8,9};
-		int[] c5r2={1,2,3,4,5,6,7,8,9};
-		int[] c5r3={1,2,3,4,5,6,7,8,9};
-		int[] c5r4={1,2,3,4,5,6,7,8,9};
-		int[] c5r5={1,2,3,4,5,6,7,8,9};
-		int[] c5r6={1,2,3,4,5,6,7,8,9};
-		int[] c5r7={1,2,3,4,5,6,7,8,9};
-		int[] c5r8={1,2,3,4,5,6,7,8,9};
-		int[] c5r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c6r1={1,2,3,4,5,6,7,8,9};
-		int[] c6r2={1,2,3,4,5,6,7,8,9};
-		int[] c6r3={1,2,3,4,5,6,7,8,9};
-		int[] c6r4={1,2,3,4,5,6,7,8,9};
-		int[] c6r5={1,2,3,4,5,6,7,8,9};
-		int[] c6r6={1,2,3,4,5,6,7,8,9};
-		int[] c6r7={1,2,3,4,5,6,7,8,9};
-		int[] c6r8={1,2,3,4,5,6,7,8,9};
-		int[] c6r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c7r1={1,2,3,4,5,6,7,8,9};
-		int[] c7r2={1,2,3,4,5,6,7,8,9};
-		int[] c7r3={1,2,3,4,5,6,7,8,9};
-		int[] c7r4={1,2,3,4,5,6,7,8,9};
-		int[] c7r5={1,2,3,4,5,6,7,8,9};
-		int[] c7r6={1,2,3,4,5,6,7,8,9};
-		int[] c7r7={1,2,3,4,5,6,7,8,9};
-		int[] c7r8={1,2,3,4,5,6,7,8,9};
-		int[] c7r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c8r1={1,2,3,4,5,6,7,8,9};
-		int[] c8r2={1,2,3,4,5,6,7,8,9};
-		int[] c8r3={1,2,3,4,5,6,7,8,9};
-		int[] c8r4={1,2,3,4,5,6,7,8,9};
-		int[] c8r5={1,2,3,4,5,6,7,8,9};
-		int[] c8r6={1,2,3,4,5,6,7,8,9};
-		int[] c8r7={1,2,3,4,5,6,7,8,9};
-		int[] c8r8={1,2,3,4,5,6,7,8,9};
-		int[] c8r9={1,2,3,4,5,6,7,8,9};
-
-		int[] c9r1={1,2,3,4,5,6,7,8,9};
-		int[] c9r2={1,2,3,4,5,6,7,8,9};
-		int[] c9r3={1,2,3,4,5,6,7,8,9};
-		int[] c9r4={1,2,3,4,5,6,7,8,9};
-		int[] c9r5={1,2,3,4,5,6,7,8,9};
-		int[] c9r6={1,2,3,4,5,6,7,8,9};
-		int[] c9r7={1,2,3,4,5,6,7,8,9};
-		int[] c9r8={1,2,3,4,5,6,7,8,9};
-		int[] c9r9={1,2,3,4,5,6,7,8,9};
-
-		int[][] board= new int [9][9];
-
+		sudokuBoard = new ArrayList<ArrayList<ArrayList<Integer>>>(9);
+		executionQueue= new ArrayList<ArrayList<Integer>>();
+		
 	}
-	private void inputInitialValues(String filePath){
+	/*===========================
+		Sudoku Copy Constructor 
+	============================*/
+	public Sudoku(Sudoku copy){
+		sudokuBoard=copy.sudokuBoard;
+		executionQueue=copy.executionQueue;
+	}
+	
+	/*==============================================================
+		inputInitialValues: takes in a file to input the value used
+		for the sudoku board.
+	----------------------------------------------------------------
+		filePath: The path of the txt file with the information for 
+		the sudoku.
+	================================================================*/
+	public void inputInitialValues(String filePath){
 		String line = null;
-		FileReader file = new FileReader(filePath);
-		BufferedReader reader = new BufferedReader(file); 
+		BufferedReader reader=null;
+		try{
+			FileReader file = new FileReader(filePath);
+			reader = new BufferedReader(file);
+		}
+		catch(FileNotFoundException f){
+			System.out.println("Error: File not found");
+		}
+		 
+		try{
+			int rowIndex=0;
 
-		int index=0;
-		while((line = reader.readLine()) != null){
-			String row="";
-			String[] sudokuRow=line.split(" ");
-			for(int i=0;i<9;i++){
-				this.board[index][i]=sudokuRow[i];
-				row = row + sudokuRow[i];
+			while((line = reader.readLine()) != null){
+				String[] sudokuRow=line.split(" ");
+				ArrayList<ArrayList<Integer>> boardRow=new ArrayList<ArrayList<Integer>>(9);
+
+				for(int i=0;i<9;i++){
+					int value=Integer.parseInt(sudokuRow[i]);
+					if(value==0){
+						boardRow.add(new ArrayList<Integer>() {{add(1);add(2);add(3);add(4);add(5);add(6);add(7);add(8);add(9);}});
+					}
+					else{
+						int row=rowIndex;
+						int col=i;
+
+						executionQueue.add(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
+						
+						boardRow.add(new ArrayList<Integer>(1){{add(value);}});
+					}
+					
+				}
+				sudokuBoard.add(boardRow);
+				
+				rowIndex++;
 			}
-			System.out.println(row);
+			reader.close();
+		}
+		catch (IOException e){
+			System.out.println("Error: Cannot readfile");
+		}
+
+		System.out.println("\nExecution Queue");
+		for(int i=0;i<executionQueue.size();i++){
+			System.out.println(executionQueue.get(i));
+
+		}
+		System.out.println("\nInitial Sudoku Board");
+		for(int j=0;j<9;j++){
+			System.out.println(sudokuBoard.get(j));
+
+		}
+		
+	}
+
+	/*==============================================================
+		ArcConsistency3: takes a value given and takes that value out of the 
+		domain of the respectable variables.
+	================================================================*/
+	public void ArcConsistency3(){
+
+		if(sudokuBoard.isEmpty()){
+			System.out.println("Error: Please initialize the sudoku board with values.");
+			return;
+		}
+		int index=0;
+		while (!executionQueue.isEmpty()){
+			ArrayList<Integer> currentVariable=executionQueue.get(0);
+			int row=currentVariable.get(0);
+			int column=currentVariable.get(1);
+			int value=currentVariable.get(2);
+			ArrayList<Integer> currentVarDoms;
+			
+			//Takes out the chosen number out of the domain of the variables in the same row by checking each column in the row
+			for (int c=0;c<9;c++){
+				/*takes numbers out of the domain of the variables as long as its not in the same 
+				row of the number*/
+				if(c!=column){
+					currentVarDoms=sudokuBoard.get(row).get(c);
+					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
+						
+						currentVarDoms.remove(currentVarDoms.indexOf(value));
+						int newC=c;
+						if(currentVarDoms.size()==1){
+							int newVar=currentVarDoms.get(0);
+							executionQueue.add(new ArrayList<Integer>(3){{add(row);add(newC);add(newVar);}});
+							
+						}
+					}
+				}
+			}
+
+			
+			//Takes out the chosen number out of the domain of the variables in the same column by checking each row in each column
+			for (int r=0;r<9;r++){
+				if(r!=row){
+					currentVarDoms= sudokuBoard.get(r).get(column);
+					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
+						currentVarDoms.remove(currentVarDoms.indexOf(value));
+						int newR=r;
+						if(currentVarDoms.size()==1){
+							int newVar=currentVarDoms.get(0);
+							executionQueue.add(new ArrayList<Integer>(3){{add(newR);add(column);add(newVar);}});
+							
+						}
+					}
+				}
+		
+			}
+
+			//Takes out the chosen number out of the domain of the variables in the same unit
+			int startRow = (row / 3) * 3;
+			int startColumn = (column / 3) * 3;
+			int endRow = startRow + 3;
+			int endColumn = startColumn + 3;
+			
+			for(int x=startRow;x<endRow;x++){
+				for(int y=startColumn;y<endColumn;y++){
+					
+						if(x!=row && y!=column){
+							currentVarDoms= sudokuBoard.get(x).get(y);
+							if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
+								currentVarDoms.remove(currentVarDoms.indexOf(value));
+					
+							}	
+				
+						}
+						
+				}
+			}
+			executionQueue.remove(0);
 			index++;
 		}
-		reader.close();
+
+		System.out.println("\nSudoku Board After AC3");
+		for(int j=0;j<9;j++){
+			System.out.println(sudokuBoard.get(j));
+
+		}
 
 	}
 
-	public void changeDomains(int enteredValue, int row, int column){
+	/*===================================================================
+		backTracking: executing the AC3 algorithm on all the variables
+		execution queue.
+	====================================================================*/
+	public void backTracking(Sudoku copy){
+		boolean solution=false;
+		while(!solution){
+		// 	for(ArrayList<Integer> domainValue: copy.sudokuBoard.get(i) )
+		// 	copy.executionQueue.
+		// 
+		}
+		
 
 	}
 
-	public void main(String[] args){
-		String path="/Users/Perlanie/Dropbox/Work/04_Fall2016/CP468-ArtifcialIntelligence/Assignments/A2/JavaApp/sudoku.txt";
-		inputInitialValues(path);
+	/*===========================
+				main
+	============================*/
+	public static void main(String[] args){
+		Sudoku currentSudoku= new Sudoku();
+		String path="//Users/Perlanie/Documents/Sudoku/JavaApp/sudoku.txt";
+		currentSudoku.inputInitialValues(path);
+		currentSudoku.ArcConsistency3();
 	}
 
 
