@@ -24,7 +24,15 @@ public class SudokuSolver{
 				ArrayList<ArrayList<Integer>> sudokuRow =new ArrayList<ArrayList<Integer>>(9);
 				for (int col = 0; col < 9; col++) {
 				//System.out.println(this.getDomain(row,col));
-					sudokuRow.add(this.getDomain(row,col));
+					ArrayList<Integer> domain =new ArrayList<Integer>();
+					ArrayList<Integer> oldDomain=this.getDomain(row,col);
+
+					for(int d=0;d<oldDomain.size();d++){
+						int val=oldDomain.get(d);
+						domain.add(val);
+					}
+
+					sudokuRow.add(domain);
 				}
 				sudokuCopy.sudokuBoard.add(sudokuRow);
 			}
@@ -41,7 +49,7 @@ public class SudokuSolver{
 
 			}
 
-			for(int j=0;j<this.inferences.size();j++){
+			for(int j=this.inferences.size()-1;j>0;j--){
 				if(this.inferences.size()>0){
 					int r=this.inferences.get(j).get(0);
 					int c=this.inferences.get(j).get(1);
@@ -51,11 +59,12 @@ public class SudokuSolver{
 
 			}
 
-			System.out.println("\nOld Inferences");
-			for(int l=0;l<sudokuCopy.inferences.size();l++){
-				System.out.println(sudokuCopy.inferences.get(l));
-
+			System.out.println("\nOld Inferences when copied: "+sudokuCopy.inferences);
+			for(ArrayList<ArrayList<Integer>> copy: sudokuCopy.sudokuBoard){
+				System.out.println(copy);
 			}
+
+		
 
 			return sudokuCopy;
 		}
@@ -292,37 +301,48 @@ public class SudokuSolver{
 			// 	solution=true;
 			// 	return copy;
 			// }
+			SudokuSolver oldCopy=copy.copySudokuSolver();
 
-		ArrayList<Integer> unassigned = copy.selectUnassignedVar(copy);//index of a var with domain.size>1
+		ArrayList<Integer> unassigned= copy.selectUnassignedVar(copy);//index of a var with domain.size>1
 		ArrayList<Integer> domainVals= copy.orderDomainsValues(unassigned);
-		for(Integer val : domainVals){
-			copy.inferences.push(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
-		}
-		if(copy.inferences.isEmpty()||unassigned.get(0)!=(copy.inferences.get(0).get(0))&&unassigned.get(1)==(copy.inferences.get(0).get(1))){
-			copy.inferences.pop();
-			copy.inferences.pop();
-			copy.inferences.pop();
+		
+		System.out.println("isEmpty: "+copy.inferences.isEmpty());
+		// System.out.println("same variable: "+(unassigned.get(0)!=copy.inferences.get(0).get(0)));
+		// System.out.println("same variable: "+(unassigned.get(1)!=copy.inferences.get(0).get(1)));
+		if(copy.inferences.isEmpty()){
+			for(Integer val : domainVals){
+				copy.inferences.push(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
+			}
 			
 		}
-		
-		
-		
+		else if((unassigned.get(0)!=copy.inferences.get(0).get(0))&&(unassigned.get(1)!=copy.inferences.get(0).get(1))){
+			ArrayList<Integer> newUnassigned = copy.selectUnassignedVar(copy);//index of a var with domain.size>1
+				ArrayList<Integer> newDomainVals= copy.orderDomainsValues(newUnassigned);
+				for(Integer val : newDomainVals){
+					copy.inferences.push(new ArrayList<Integer>(){{add(newUnassigned.get(0));add(newUnassigned.get(1));add(val);}});
+				}
 
-			SudokuSolver oldCopy=copy.copySudokuSolver();
+		}
+			System.out.println("copy inferences: "+copy.inferences);
 			ArrayList<Integer> inferenceToApply=copy.inferences.pop();
-			System.out.println(inferenceToApply);
+			System.out.println("\npopped: "+inferenceToApply);
 			copy.sudokuBoard.get(inferenceToApply.get(0)).set(inferenceToApply.get(1),new ArrayList<Integer>(){{add(inferenceToApply.get(2));}});
 			copy.executionQueue.add(inferenceToApply);
 			SudokuSolver sudokuResult=null;
-			System.out.println("copy inferences: "+copy.inferences);
+			System.out.println("copy inferences after popped: "+copy.inferences);
 			boolean ac3=copy.ArcConsistency3();
+			System.out.print(copy.executionQueue);
+
 			if(ac3 && copy.validState()){
+				ArrayList<Integer> newUnassigned = copy.selectUnassignedVar(copy);//index of a var with domain.size>1
+				ArrayList<Integer> newDomainVals= copy.orderDomainsValues(newUnassigned);
+				for(Integer val : newDomainVals){
+					copy.inferences.push(new ArrayList<Integer>(){{add(newUnassigned.get(0));add(newUnassigned.get(1));add(val);}});
+				}
 				sudokuResult=backTrack(copy);
 			}
 			else{
-				System.out.println("old inferences: "+oldCopy.inferences);
-
-				ArrayList<Integer> ignore=oldCopy.inferences.pop();
+				System.out.println("\nold inferences: "+oldCopy.inferences);
 				sudokuResult=backTrack(oldCopy);
 			}
 			
