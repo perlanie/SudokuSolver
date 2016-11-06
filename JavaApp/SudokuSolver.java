@@ -11,7 +11,6 @@ public class SudokuSolver{
 		public SudokuSolver(){
 			this.sudokuBoard = new ArrayList<ArrayList<ArrayList<Integer>>>(9);
 			this.executionQueue= new ArrayList<ArrayList<Integer>>();
-			this.inferences=new LinkedList<ArrayList<Integer>>();
 
 		}
 	/*===============================================================
@@ -47,21 +46,6 @@ public class SudokuSolver{
 					sudokuCopy.executionQueue.add(new ArrayList<Integer>(3){{add(r);add(c);add(val);}});
 				}
 
-			}
-
-			for(int j=this.inferences.size()-1;j>0;j--){
-				if(this.inferences.size()>0){
-					int r=this.inferences.get(j).get(0);
-					int c=this.inferences.get(j).get(1);
-					int val=this.inferences.get(j).get(2);
-					sudokuCopy.inferences.push(new ArrayList<Integer>(3){{add(r);add(c);add(val);}});
-				}
-
-			}
-
-			System.out.println("\nOld Inferences when copied: "+sudokuCopy.inferences);
-			for(ArrayList<ArrayList<Integer>> copy: sudokuCopy.sudokuBoard){
-				System.out.println(copy);
 			}
 
 		
@@ -141,11 +125,11 @@ public class SudokuSolver{
 		ArcConsistency3: takes a value given and takes that value out of the 
 		domain of the respectable variables.
 		================================================================*/
-		public boolean ArcConsistency3(){
+		public void ArcConsistency3(){
 
 			if(this.sudokuBoard.isEmpty()){
 				System.out.println("Error: Please initialize the sudoku board with values.");
-				return false;
+				//return false;
 			}
 			int index=0;
 			while (!this.executionQueue.isEmpty()){
@@ -155,9 +139,9 @@ public class SudokuSolver{
 				int value=currentVariable.get(2);
 				ArrayList<Integer> currentVarDoms;
 
-				if(this.getDomain(row,column).size()==0){
-					return false;
-				}
+				// if(this.getDomain(row,column).size()==0){
+				// 	return false;
+				// }
 			//Takes out the chosen number out of the domain of the variables in the same row by checking each column in the row
 				for (int c=0;c<9;c++){
 				/*takes numbers out of the domain of the variables as long as its not in the same 
@@ -170,17 +154,17 @@ public class SudokuSolver{
 						int newC=c;
 						if(currentVarDoms.size()==1){
 							int newVar=currentVarDoms.get(0);
-							if(newVar!=value){
+							//if(newVar!=value){
 								this.executionQueue.add(new ArrayList<Integer>(3){{add(row);add(newC);add(newVar);}});
-							}
-							else{
-								return false;
-							}
+							//}
+							// else{
+							// 	return false;
+							// }
 						}
 					}
-					else if(currentVarDoms.get(0)==value){
-						return false;
-					}
+					// else if(currentVarDoms.get(0)==value){
+					// 	return false;
+					// }
 				}
 			}
 
@@ -194,19 +178,18 @@ public class SudokuSolver{
 						int newR=r;
 						if(currentVarDoms.size()==1){
 							int newVar=currentVarDoms.get(0);
-							if(newVar!=value){
-								this.executionQueue.add(new ArrayList<Integer>(3){{add(newR);add(column);add(newVar);}});
-							}
-							else{
-								return false;
-							}
+							this.executionQueue.add(new ArrayList<Integer>(3){{add(newR);add(column);add(newVar);}});
+							
+							// else{
+							// 	return false;
+							// }
 
 							
 						}
 					}
-					else if(currentVarDoms.get(0)==value){
-						return false;
-					}
+					// else if(currentVarDoms.get(0)==value){
+					// 	return false;
+					// }
 				}
 
 			}
@@ -228,19 +211,19 @@ public class SudokuSolver{
 								int newVar=currentVarDoms.get(0);
 								int newX=x;
 								int newY=y;
-								if(newVar!=value){
+								// if(newVar!=value){
 									this.executionQueue.add(new ArrayList<Integer>(3){{add(newX);add(newY);add(newVar);}});
-								}
-								else{
-									return false;
-								}
+								// }
+								// else{
+								// 	return false;
+								// }
 
 
 							}
 						}
-						else if(currentVarDoms.get(0)==value){
-							return false;
-						}	
+						// else if(currentVarDoms.get(0)==value){
+						// 	return false;
+						// }	
 
 					}
 
@@ -255,20 +238,20 @@ public class SudokuSolver{
 			System.out.println(this.sudokuBoard.get(j));
 
 		}
-		return true;
+		 //return true;
 
 	}
 
-	// public boolean isSolved(){
-	// 	for (int r=0;r<9;r++){
-	// 		for(int c=0;c<9;c++){
-	// 			if(this.sudokuBoard.get(r).get(c).size()>1){
-	// 				return false;
-	// 			}
-	// 		}
-	// 	}
-	// 	return true;
-	// }
+	public boolean allVariablesFilled(){
+		for (int r=0;r<9;r++){
+			for(int c=0;c<9;c++){
+				if(this.sudokuBoard.get(r).get(c).size()>1){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
 	public ArrayList<Integer> selectUnassignedVar(SudokuSolver copy){
 		for(int r=0; r<9;r++){
@@ -286,79 +269,44 @@ public class SudokuSolver{
 		return this.sudokuBoard.get(unassigned.get(0)).get(unassigned.get(1));
 	}
 
-	public SudokuSolver backTrackingSearch(SudokuSolver copy){
-		SudokuSolver possibleSolution=backTrack(copy);
+	public SudokuSolver backTrackingSearch(SudokuSolver sudoku){
+		SudokuSolver possibleSolution=backTrack(sudoku);
 		return possibleSolution;
 	}
 	/*===================================================================
-		backTracking: executing the AC3 algorithm on all the variables
-		execution queue.
-		====================================================================*/
-		public SudokuSolver backTrack(SudokuSolver copy){
-			boolean solution=false;
+	backTracking: executing the AC3 algorithm on all the variables
+	execution queue.
+	====================================================================*/
+		public SudokuSolver backTrack(SudokuSolver sudoku){
 
-			// if(this.isSolved()){
-			// 	solution=true;
-			// 	return copy;
-			// }
-			SudokuSolver oldCopy=copy.copySudokuSolver();
-
-		ArrayList<Integer> unassigned= copy.selectUnassignedVar(copy);//index of a var with domain.size>1
-		ArrayList<Integer> domainVals= copy.orderDomainsValues(unassigned);
-		
-		System.out.println("isEmpty: "+copy.inferences.isEmpty());
-		// System.out.println("same variable: "+(unassigned.get(0)!=copy.inferences.get(0).get(0)));
-		// System.out.println("same variable: "+(unassigned.get(1)!=copy.inferences.get(0).get(1)));
-		if(copy.inferences.isEmpty()){
-			for(Integer val : domainVals){
-				copy.inferences.push(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
+			if(sudoku.allVariablesFilled()){
+				return sudoku;
 			}
-			
-		}
-		else if((unassigned.get(0)!=copy.inferences.get(0).get(0))&&(unassigned.get(1)!=copy.inferences.get(0).get(1))){
-			ArrayList<Integer> newUnassigned = copy.selectUnassignedVar(copy);//index of a var with domain.size>1
-				ArrayList<Integer> newDomainVals= copy.orderDomainsValues(newUnassigned);
-				for(Integer val : newDomainVals){
-					copy.inferences.push(new ArrayList<Integer>(){{add(newUnassigned.get(0));add(newUnassigned.get(1));add(val);}});
+			ArrayList<Integer> unassigned= sudoku.selectUnassignedVar(sudoku);//index of a var with domain.size>1
+			ArrayList<Integer> domainVals= sudoku.orderDomainsValues(unassigned);
+
+			for(Integer val :domainVals){
+				System.out.println("\nAC3: ["+unassigned.get(0)+", "+unassigned.get(1)+", "+val+"]");
+				SudokuSolver copy = sudoku.copySudokuSolver();
+				copy.sudokuBoard.get(unassigned.get(0)).set(unassigned.get(1),new ArrayList<Integer>(){{add(val);}});
+				copy.executionQueue.add(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
+				
+				copy.ArcConsistency3();
+
+				if(copy.isValidState()){
+					System.out.println("VALID");
+					SudokuSolver result=backTrack(copy);
+					if (result != null) {
+							return result;
+					}
 				}
-
-		}
-			System.out.println("copy inferences: "+copy.inferences);
-			ArrayList<Integer> inferenceToApply=copy.inferences.pop();
-			System.out.println("\npopped: "+inferenceToApply);
-			copy.sudokuBoard.get(inferenceToApply.get(0)).set(inferenceToApply.get(1),new ArrayList<Integer>(){{add(inferenceToApply.get(2));}});
-			copy.executionQueue.add(inferenceToApply);
-			SudokuSolver sudokuResult=null;
-			System.out.println("copy inferences after popped: "+copy.inferences);
-			boolean ac3=copy.ArcConsistency3();
-			System.out.print(copy.executionQueue);
-
-			if(ac3 && copy.validState()){
-				ArrayList<Integer> newUnassigned = copy.selectUnassignedVar(copy);//index of a var with domain.size>1
-				ArrayList<Integer> newDomainVals= copy.orderDomainsValues(newUnassigned);
-				for(Integer val : newDomainVals){
-					copy.inferences.push(new ArrayList<Integer>(){{add(newUnassigned.get(0));add(newUnassigned.get(1));add(val);}});
-				}
-				sudokuResult=backTrack(copy);
-			}
-			else{
-				System.out.println("\nold inferences: "+oldCopy.inferences);
-				sudokuResult=backTrack(oldCopy);
-			}
-			
-			if(sudokuResult!=null){
-				return sudokuResult;
 			}
 
-
-		
-		return null;
-		
-
+			return null;
 	}
 
 
-	public boolean validState(){
+	public boolean isValidState(){
 		//row check
 		for(int row=0;row<9;row++){
 			int[] values=new int[9];
@@ -443,6 +391,17 @@ public class SudokuSolver{
 					currentSudokuSolver.ArcConsistency3();
 					SudokuSolver copy=currentSudokuSolver.copySudokuSolver();
 					SudokuSolver result=currentSudokuSolver.backTrackingSearch(copy);
+					System.out.println("\nSudokuSolver After backTrack");
+					for(int j=0;j<9;j++){
+						System.out.println(result.sudokuBoard.get(j));
+
+					}
+
+					//currentSudokuSolver.executionQueue.add(new ArrayList<Integer>(){{add(0);add(1);add(3);}});
+					//currentSudokuSolver.executionQueue.add(new ArrayList<Integer>(){{add(0);add(2);add(1);}});
+					//currentSudokuSolver.executionQueue.add(new ArrayList<Integer>(){{add(0);add(4);add(2);}});
+					//currentSudokuSolver.ArcConsistency3();
+					//System.out.println(currentSudokuSolver.isValidState());
 
 				}
 
