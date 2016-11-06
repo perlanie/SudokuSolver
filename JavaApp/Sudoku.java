@@ -2,34 +2,25 @@ import java.io.*;
 import java.util.*;
 
 public class Sudoku{
-	private ArrayList<ArrayList<ArrayList<Integer>>> sudokuBoard;
-	private ArrayList<ArrayList<Integer>> executionQueue;
-	/*===========================
-		Sudoku Constructor 
-	============================*/
+	ArrayList<ArrayList<ArrayList<Integer>>>sudokuBoard;
+	LinkedList<ArrayList<Integer>> executionQueue;
+
 	public Sudoku(){
-		sudokuBoard = new ArrayList<ArrayList<ArrayList<Integer>>>(9);
-		executionQueue= new ArrayList<ArrayList<Integer>>();
-		
+		this.sudokuBoard = new ArrayList<ArrayList<ArrayList<Integer>>>(9);
+		this.executionQueue= new LinkedList<ArrayList<Integer>>();
 	}
-	/*===========================
-		Sudoku Copy Constructor 
-	============================*/
-	public Sudoku(Sudoku copy){
-		sudokuBoard=copy.sudokuBoard;
-		executionQueue=copy.executionQueue;
-	}
-	
+
 	/*==============================================================
-		inputInitialValues: takes in a file to input the value used
+		initSudoku: takes in a file to input the value used
 		for the sudoku board.
 	----------------------------------------------------------------
 		filePath: The path of the txt file with the information for 
 		the sudoku.
 	================================================================*/
-	public void inputInitialValues(String filePath){
+	public void initSudoku(String filePath){
 		String line = null;
 		BufferedReader reader=null;
+		
 		try{
 			FileReader file = new FileReader(filePath);
 			reader = new BufferedReader(file);
@@ -54,13 +45,13 @@ public class Sudoku{
 						int row=rowIndex;
 						int col=i;
 
-						executionQueue.add(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
+						this.executionQueue.push(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
 						
 						boardRow.add(new ArrayList<Integer>(1){{add(value);}});
 					}
 					
 				}
-				sudokuBoard.add(boardRow);
+				this.sudokuBoard.add(boardRow);
 				
 				rowIndex++;
 			}
@@ -69,137 +60,61 @@ public class Sudoku{
 		catch (IOException e){
 			System.out.println("Error: Cannot readfile");
 		}
-
-		System.out.println("\nExecution Queue");
-		for(int i=0;i<executionQueue.size();i++){
-			System.out.println(executionQueue.get(i));
-
-		}
-		System.out.println("\nInitial Sudoku Board");
-		for(int j=0;j<9;j++){
-			System.out.println(sudokuBoard.get(j));
-
-		}
-		
 	}
 
 	/*==============================================================
-		ArcConsistency3: takes a value given and takes that value out of the 
-		domain of the respectable variables.
+		getDomain: returns the domain of the variable at [row,col]
+	----------------------------------------------------------------
+		row: the x position of the variable
+		col: the y position of the variable
 	================================================================*/
-	public void ArcConsistency3(){
-
-		if(sudokuBoard.isEmpty()){
-			System.out.println("Error: Please initialize the sudoku board with values.");
-			return;
-		}
-		int index=0;
-		while (!executionQueue.isEmpty()){
-			ArrayList<Integer> currentVariable=executionQueue.get(0);
-			int row=currentVariable.get(0);
-			int column=currentVariable.get(1);
-			int value=currentVariable.get(2);
-			ArrayList<Integer> currentVarDoms;
-			
-			//Takes out the chosen number out of the domain of the variables in the same row by checking each column in the row
-			for (int c=0;c<9;c++){
-				/*takes numbers out of the domain of the variables as long as its not in the same 
-				row of the number*/
-				if(c!=column){
-					currentVarDoms=sudokuBoard.get(row).get(c);
-					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-						
-						currentVarDoms.remove(currentVarDoms.indexOf(value));
-						int newC=c;
-						if(currentVarDoms.size()==1){
-							int newVar=currentVarDoms.get(0);
-							executionQueue.add(new ArrayList<Integer>(3){{add(row);add(newC);add(newVar);}});
-							
-						}
-					}
-				}
-			}
-
-			
-			//Takes out the chosen number out of the domain of the variables in the same column by checking each row in each column
-			for (int r=0;r<9;r++){
-				if(r!=row){
-					currentVarDoms= sudokuBoard.get(r).get(column);
-					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-						currentVarDoms.remove(currentVarDoms.indexOf(value));
-						int newR=r;
-						if(currentVarDoms.size()==1){
-							int newVar=currentVarDoms.get(0);
-							executionQueue.add(new ArrayList<Integer>(3){{add(newR);add(column);add(newVar);}});
-							
-						}
-					}
-				}
-		
-			}
-
-			//Takes out the chosen number out of the domain of the variables in the same unit
-			int startRow = (row / 3) * 3;
-			int startColumn = (column / 3) * 3;
-			int endRow = startRow + 3;
-			int endColumn = startColumn + 3;
-			
-			for(int x=startRow;x<endRow;x++){
-				for(int y=startColumn;y<endColumn;y++){
-					
-						if(x!=row && y!=column){
-							currentVarDoms= sudokuBoard.get(x).get(y);
-							if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-								currentVarDoms.remove(currentVarDoms.indexOf(value));
-					
-							}	
-				
-						}
-						
-				}
-			}
-			executionQueue.remove(0);
-			index++;
-		}
-
-		System.out.println("\nSudoku Board After AC3");
-		for(int j=0;j<9;j++){
-			System.out.println(sudokuBoard.get(j));
-
-		}
+	public ArrayList<Integer> getDomain(int row, int col){
+		return this.sudokuBoard.get(row).get(col);
 
 	}
 
-	/*===================================================================
-		backTracking: executing the AC3 algorithm on all the variables
-		execution queue.
-	====================================================================*/
-	public void backTracking(Sudoku copy){
-		boolean solution=false;
-		while(!solution){
-		// 	for(ArrayList<Integer> domainValue: copy.sudokuBoard.get(i) )
-		// 	copy.executionQueue.
-		// 
+	/*==============================================================
+		setDomain: sets the domain of the variable at [row,col]
+	----------------------------------------------------------------
+		row: the x position of the variable
+		col: the y position of the variable
+	================================================================*/
+	public void setDomain(int row, int col,ArrayList<Integer> domain){
+		this.sudokuBoard.get(row).set(col,domain);
+
+	}
+
+	/*====================================================================
+		removeValFromDomain: removes a value from the domain of a specified
+		variable 
+	----------------------------------------------------------------------
+		row: the x position of the variable
+		col: the y position of the variable
+		value: value to be removed 
+	=====================================================================*/
+	public void removeValFromDomain(int row, int col, int value){
+		ArrayList<Integer> domain=this.getDomain(row,col);
+		if(domain.contains(value)&&domain.size()!=1){
+			this.sudokuBoard.get(row).get(col).remove(domain.indexOf(value));
+
 		}
-		
-
 	}
 
-	/*===========================
-				main
-	============================*/
-	public static void main(String[] args){
-		Sudoku currentSudoku= new Sudoku();
-		String path="//Users/Perlanie/Documents/Sudoku/JavaApp/sudoku.txt";
-		currentSudoku.inputInitialValues(path);
-		currentSudoku.ArcConsistency3();
+	/*====================================================================
+		addValFromDomain: removes a value from the domain of a specified
+		variable 
+	----------------------------------------------------------------------
+		row: the x position of the variable
+		col: the y position of the variable
+		value: value to be removed 
+	=====================================================================*/
+	public void addValFromDomain(int row, int col, int value){
+		ArrayList<Integer> domain=this.getDomain(row,col);
+		if(!domain.contains(value)){
+			this.sudokuBoard.get(row).get(col).add(value);
+
+		}
 	}
-
-
-
-
-
 
 
 }
-
