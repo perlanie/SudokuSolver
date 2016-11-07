@@ -20,7 +20,7 @@ public class Sudoku{
 	public void initSudoku(String filePath){
 		String line = null;
 		BufferedReader reader=null;
-		
+
 		try{
 			FileReader file = new FileReader(filePath);
 			reader = new BufferedReader(file);
@@ -28,7 +28,7 @@ public class Sudoku{
 		catch(FileNotFoundException f){
 			System.out.println("Error: File not found");
 		}
-		 
+
 		try{
 			int rowIndex=0;
 
@@ -46,13 +46,13 @@ public class Sudoku{
 						int col=i;
 
 						this.executionQueue.push(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
-						
+
 						boardRow.add(new ArrayList<Integer>(1){{add(value);}});
 					}
-					
+
 				}
 				this.sudokuBoard.add(boardRow);
-				
+
 				rowIndex++;
 			}
 			reader.close();
@@ -60,6 +60,31 @@ public class Sudoku{
 		catch (IOException e){
 			System.out.println("Error: Cannot readfile");
 		}
+	}
+
+	/*===============================================================
+		copySudokuSolver: create a copy of the sudoku object
+	================================================================*/
+	public Sudoku sudokuCopy(){
+		Sudoku sudokuCopy = new Sudoku();
+
+		for (int row = 0; row < 9; row++) {
+			ArrayList<ArrayList<Integer>> sudokuRow =new ArrayList<ArrayList<Integer>>(9);
+			for (int col = 0; col < 9; col++) {
+				ArrayList<Integer> domain =new ArrayList<Integer>();
+				ArrayList<Integer> oldDomain=this.getDomain(row,col);
+
+				for(int d=0;d<oldDomain.size();d++){
+					int val=oldDomain.get(d);
+					domain.add(val);
+				}
+
+				sudokuRow.add(domain);
+			}
+			sudokuCopy.sudokuBoard.add(sudokuRow);
+		}
+
+		return sudokuCopy;
 	}
 
 	/*==============================================================
@@ -101,14 +126,14 @@ public class Sudoku{
 	}
 
 	/*====================================================================
-		addValFromDomain: removes a value from the domain of a specified
+		addValToDomain: removes a value from the domain of a specified
 		variable 
 	----------------------------------------------------------------------
 		row: the x position of the variable
 		col: the y position of the variable
 		value: value to be removed 
 	=====================================================================*/
-	public void addValFromDomain(int row, int col, int value){
+	public void addValToDomain(int row, int col, int value){
 		ArrayList<Integer> domain=this.getDomain(row,col);
 		if(!domain.contains(value)){
 			this.sudokuBoard.get(row).get(col).add(value);
