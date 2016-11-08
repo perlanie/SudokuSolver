@@ -2,7 +2,95 @@ import java.io.*;
 import java.util.*;
 
 public class SudokuSolver{
+	public static LinkedList<Arc> executionQueue=new LinkedList<Arc>();
 
+	public static class Arc{
+		int varR;
+		int varC;
+		int otherVarR;
+		int otherVarC;
+		int val;
+
+		public Arc(int varR, int varC, int otherVarR, int otherVarC,int val){
+			this.varR=varR;
+			this.varC=varC;
+			this.otherVarR=otherVarR;
+			this.otherVarC=otherVarC;
+			this.val=val;
+		}
+	}
+
+	public static void createArcs(ArrayList<Integer> sudokuVar,Sudoku sudoku){
+		int row=sudokuVar.get(0);
+		int col=sudokuVar.get(1);
+		int val=sudokuVar.get(2);
+
+
+		ArrayList<Integer> currentVarDoms;
+		for (int c=0;c<9;c++){
+			/*takes numbers out of the domain of the variables as long as its not in the same 
+			row of the number*/
+				if(c!=col){
+					currentVarDoms=sudoku.getDomain(row,c);
+					if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
+						executionQueue.add(new Arc(row,col,row,c,val));
+						
+					}
+				}
+			}
+
+			
+			//Takes out the chosen number out of the domain of the variables in the same column by checking each row in each column
+			for (int r=0;r<9;r++){
+				if(r!=row){
+					currentVarDoms=sudoku.getDomain(r,col);
+					if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
+						executionQueue.add(new Arc(row,col,r,col,val));
+					}
+				}
+			}
+
+			//Takes out the chosen number out of the domain of the variables in the same unit
+			int startRow = (row / 3) * 3;
+			int startColumn = (col / 3) * 3;
+			int endRow = startRow + 3;
+			int endColumn = startColumn + 3;
+			
+			for(int x=startRow;x<endRow;x++){
+				for(int y=startColumn;y<endColumn;y++){
+					
+					if(x!=row && y!=col){
+						currentVarDoms= sudoku.getDomain(x,y);
+						if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
+							executionQueue.add(new Arc(row,col,x,y,val));
+						}
+					}
+				}
+			}
+
+	}
+	/*===============================================================
+		populateQueue: adds proper variable pairs to the 
+		execution queue.
+	================================================================*/
+	public static void populateQueue(Sudoku sudoku){
+
+		for(int i=0;i<9;i++){
+			for(int j=0;j<9;j++){
+				ArrayList<Integer> varDom= sudoku.getDomain(i,j);
+				if(varDom.size()==1){
+					int row=i;
+					int col=j;
+					ArrayList<Integer> var=new ArrayList<Integer>(3){{add(row);add(col);add(varDom.get(0));}};
+					createArcs(var, sudoku);
+
+				}
+			}
+		}
+
+		
+
+	}
 	/*==============================================================
 	ArcConsistency3: takes a value given and takes that value out of the 
 	domain of the respectable variables.
@@ -15,79 +103,29 @@ public class SudokuSolver{
 			System.out.println("Error: Please initialize the sudoku board with values.");
 			//return false;
 		}
-		int index=0;
-		while (!sudoku.executionQueue.isEmpty()){
-			ArrayList<Integer> currentVariable=sudoku.executionQueue.get(0);
-			int row=currentVariable.get(0);
-			int column=currentVariable.get(1);
-			int value=currentVariable.get(2);
-			ArrayList<Integer> currentVarDoms;
+		
+		while (!executionQueue.isEmpty()){
+			System.out.println("Number of Arcs in the queue: "+ executionQueue.size());
+			Arc curArc=executionQueue.get(0);
+			int row=curArc.varR;
+			int col=curArc.varC;
+			int otherRow=curArc.otherVarR;
+			int otherCol=curArc.otherVarC;
+			int value=curArc.val;
 
-			for (int c=0;c<9;c++){
-			/*takes numbers out of the domain of the variables as long as its not in the same 
-			row of the number*/
-				if(c!=column){
-					currentVarDoms=sudoku.getDomain(row,c);
-					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-						sudoku.removeValFromDomain(row,c,value);
-						int newC=c;
-						if(currentVarDoms.size()==1){
-							int newVar=currentVarDoms.get(0);
-							sudoku.executionQueue.add(new ArrayList<Integer>(3){{add(row);add(newC);add(newVar);}});
-						}
-					}
+			ArrayList<Integer> otherDom=sudoku.getDomain(otherRow,otherCol);
+
+			if(otherDom.size()!=1&&otherDom.contains(value)){
+				sudoku.removeValFromDomain(otherRow,otherCol,value);
+				//int newC=c;
+				if(otherDom.size()==1){
+					ArrayList<Integer> var=new ArrayList<Integer>(3){{add(otherRow);add(otherCol);add(otherDom.get(0));}};
+					createArcs(var,sudoku);
 				}
 			}
-
-			
-			//Takes out the chosen number out of the domain of the variables in the same column by checking each row in each column
-			for (int r=0;r<9;r++){
-				if(r!=row){
-					currentVarDoms= sudoku.getDomain(r,column);
-					if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-						sudoku.removeValFromDomain(r,column,value);
-						int newR=r;
-						if(currentVarDoms.size()==1){
-							int newVar=currentVarDoms.get(0);
-							sudoku.executionQueue.add(new ArrayList<Integer>(3){{add(newR);add(column);add(newVar);}});
-						}
-					}
-				}
-			}
-
-			//Takes out the chosen number out of the domain of the variables in the same unit
-			int startRow = (row / 3) * 3;
-			int startColumn = (column / 3) * 3;
-			int endRow = startRow + 3;
-			int endColumn = startColumn + 3;
-			
-			for(int x=startRow;x<endRow;x++){
-				for(int y=startColumn;y<endColumn;y++){
-					
-					if(x!=row && y!=column){
-						currentVarDoms= sudoku.getDomain(x,y);
-						if(currentVarDoms.contains(value)&&currentVarDoms.size()!=1){
-							sudoku.removeValFromDomain(x,y,value);
-							if(currentVarDoms.size()==1){
-								int newVar=currentVarDoms.get(0);
-								int newX=x;
-								int newY=y;
-								sudoku.executionQueue.add(new ArrayList<Integer>(3){{add(newX);add(newY);add(newVar);}});
-							}
-						}
-					}
-				}
-			}
-			sudoku.executionQueue.remove(0);
-			index++;
-		}
-
-		System.out.println("\nSudoku Board After AC3");
-		for(int j=0;j<9;j++){
-			System.out.println(sudoku.sudokuBoard.get(j));
+			executionQueue.remove(0);
 
 		}
-
 	}
 
 	/*=====================================================================
@@ -167,8 +205,10 @@ public class SudokuSolver{
 			Sudoku copy = sudoku.sudokuCopy();
 			copy.setDomain(unassigned.get(0),unassigned.get(1),new ArrayList<Integer>(){{add(val);}});
 			//copy.sudokuBoard.get(unassigned.get(0)).set(unassigned.get(1),new ArrayList<Integer>(){{add(val);}});
-			copy.executionQueue.add(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
-			
+			//copy.executionQueue.add(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
+			ArrayList<Integer> var=new ArrayList<Integer>(3){{add(unassigned.get(0));add(unassigned.get(1));add(val);}};
+			createArcs(var,sudoku);
+
 			ArcConsistency3(copy);
 
 			if(isValidState(copy)){
@@ -271,7 +311,13 @@ public class SudokuSolver{
 		Sudoku currentSudoku= new Sudoku ();
 		String path="/Users/Perlanie/Documents/Sudoku/JavaApp/sudoku.txt";
 		currentSudoku.initSudoku(path);
+		populateQueue(currentSudoku);
+
 		ArcConsistency3(currentSudoku);
+		System.out.println("\nSudoku After AC3");
+		for(int i=0;i<9;i++){
+			System.out.println(currentSudoku.sudokuBoard.get(i));
+		}
 		Sudoku copy=currentSudoku.sudokuCopy();
 		Sudoku result=backTrackingSearch(copy);
 		System.out.println("\nSudoku After backTrack");
@@ -279,10 +325,11 @@ public class SudokuSolver{
 			System.out.println(result.sudokuBoard.get(j));
 		}
 		if(isValidState(result)){
-			System.out.println("Sudoku Solver has successfully solved the puzzle.");
+			System.out.println("\nSudoku Solver has successfully solved the puzzle.\n");
+			result.printSudoku();
 		}
 		else{
-			System.out.println("ERROR: Sudoku Solver has reached an invalid state. No Solution.");
+			System.out.println("\nERROR: Sudoku Solver has reached an invalid state. No Solution.");
 		}
 
 	

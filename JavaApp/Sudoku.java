@@ -3,11 +3,10 @@ import java.util.*;
 
 public class Sudoku{
 	ArrayList<ArrayList<ArrayList<Integer>>>sudokuBoard;
-	LinkedList<ArrayList<Integer>> executionQueue;
-
+	//LinkedList<ArrayList<Integer>> executionQueue;
 	public Sudoku(){
 		this.sudokuBoard = new ArrayList<ArrayList<ArrayList<Integer>>>(9);
-		this.executionQueue= new LinkedList<ArrayList<Integer>>();
+		//this.executionQueue= new LinkedList<ArrayList<variable>>();
 	}
 
 	/*==============================================================
@@ -45,7 +44,8 @@ public class Sudoku{
 						int row=rowIndex;
 						int col=i;
 
-						this.executionQueue.push(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
+						//this.executionQueue.push(new Variable(row,col,new ArrayList<Integer>(1){{add(value);}}));
+						//this.executionQueue.push(new ArrayList<Integer>(3){{add(row);add(col);add(value);}});
 
 						boardRow.add(new ArrayList<Integer>(1){{add(value);}});
 					}
@@ -61,6 +61,7 @@ public class Sudoku{
 			System.out.println("Error: Cannot readfile");
 		}
 	}
+	
 
 	/*===============================================================
 		copySudokuSolver: create a copy of the sudoku object
@@ -139,6 +140,23 @@ public class Sudoku{
 			this.sudokuBoard.get(row).get(col).add(value);
 
 		}
+	}
+
+	public void printSudoku(){
+		for(int r=0;r<9;r++){
+			String row="";
+			if((r%3==0)&&r!=8&&r!=0){
+				System.out.println("----------------------------------");
+			}
+			for(int c=0;c<9;c++){
+				row=row+this.getDomain(r,c);
+				if(((c+1)%3==0)&&c!=8){
+					row=row+" | ";
+				}
+			}
+			System.out.println(row);
+		}
+		
 	}
 
 
