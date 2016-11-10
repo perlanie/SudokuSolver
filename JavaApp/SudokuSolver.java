@@ -31,11 +31,7 @@ public class SudokuSolver{
 			/*takes numbers out of the domain of the variables as long as its not in the same 
 			row of the number*/
 				if(c!=col){
-					currentVarDoms=sudoku.getDomain(row,c);
-					if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
-						executionQueue.add(new Arc(row,col,row,c,val));
-						
-					}
+					executionQueue.add(new Arc(row,col,row,c,val));
 				}
 			}
 
@@ -43,10 +39,7 @@ public class SudokuSolver{
 			//Takes out the chosen number out of the domain of the variables in the same column by checking each row in each column
 			for (int r=0;r<9;r++){
 				if(r!=row){
-					currentVarDoms=sudoku.getDomain(r,col);
-					if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
-						executionQueue.add(new Arc(row,col,r,col,val));
-					}
+					executionQueue.add(new Arc(row,col,r,col,val));
 				}
 			}
 
@@ -60,10 +53,7 @@ public class SudokuSolver{
 				for(int y=startColumn;y<endColumn;y++){
 					
 					if(x!=row && y!=col){
-						currentVarDoms= sudoku.getDomain(x,y);
-						if(currentVarDoms.contains(val)&&currentVarDoms.size()!=1){
-							executionQueue.add(new Arc(row,col,x,y,val));
-						}
+						executionQueue.add(new Arc(row,col,x,y,val));
 					}
 				}
 			}
@@ -85,11 +75,14 @@ public class SudokuSolver{
 					createArcs(var, sudoku);
 
 				}
+				else{
+					int row=i;
+					int col=j;
+					ArrayList<Integer> var=new ArrayList<Integer>(3){{add(row);add(col);add(0);}};
+					createArcs(var, sudoku);
+				}
 			}
 		}
-
-		
-
 	}
 	/*==============================================================
 	ArcConsistency3: takes a value given and takes that value out of the 
@@ -101,7 +94,6 @@ public class SudokuSolver{
 
 		if(sudoku.sudokuBoard.isEmpty()){
 			System.out.println("Error: Please initialize the sudoku board with values.");
-			//return false;
 		}
 		
 		while (!executionQueue.isEmpty()){
@@ -117,7 +109,6 @@ public class SudokuSolver{
 
 			if(otherDom.size()!=1&&otherDom.contains(value)){
 				sudoku.removeValFromDomain(otherRow,otherCol,value);
-				//int newC=c;
 				if(otherDom.size()==1){
 					ArrayList<Integer> var=new ArrayList<Integer>(3){{add(otherRow);add(otherCol);add(otherDom.get(0));}};
 					createArcs(var,sudoku);
@@ -204,12 +195,10 @@ public class SudokuSolver{
 			System.out.println("\nBack tracking with following variable: ["+unassigned.get(0)+", "+unassigned.get(1)+", "+val+"]");
 			Sudoku copy = sudoku.sudokuCopy();
 			copy.setDomain(unassigned.get(0),unassigned.get(1),new ArrayList<Integer>(){{add(val);}});
-			//copy.sudokuBoard.get(unassigned.get(0)).set(unassigned.get(1),new ArrayList<Integer>(){{add(val);}});
-			//copy.executionQueue.add(new ArrayList<Integer>(){{add(unassigned.get(0));add(unassigned.get(1));add(val);}});
 			ArrayList<Integer> var=new ArrayList<Integer>(3){{add(unassigned.get(0));add(unassigned.get(1));add(val);}};
 			createArcs(var,sudoku);
 
-			ArcConsistency3(copy);
+			ArcConsistency3(copy);//uses AC3 as an inference
 
 			if(isValidState(copy)){
 				Sudoku result=backTrack(copy);
@@ -230,20 +219,37 @@ public class SudokuSolver{
 	sudoku: the sudoku board you would like to check is in a valid state
 	====================================================================*/
 	public static boolean isValidState(Sudoku sudoku){
-		//row check
-		for(int row=0;row<9;row++){
-			int[] values=new int[9];
-			for(int col=0;col<9;col++){
-				if(sudoku.sudokuBoard.get(row).get(col).size()==1){
-					values[col]=sudoku.sudokuBoard.get(row).get(col).get(0);
+		//unit check
+		for (int unitRow = 0; unitRow < 3; unitRow++) {
+			for (int unitCol = 0; unitCol < 3; unitCol++) {
+				int[] values = new int[9];
+				int startRow = unitRow * 3;
+				int startCol = unitCol * 3;
+				int endRow = startRow + 3;
+				int endCol = startCol + 3;
+				int at = 0;
+				for (int row = startRow; row < endRow; row++) {
+					for (int col = startCol; col < endCol; col++) {
+						values[at++] = sudoku.getValue(row, col);
+					}
 				}
-				else{
-					values[col]=0;
+				Arrays.sort(values);
+				for (int i = 1; i < at; i++) {
+					if (values[i] != 0 && values[i - 1] != 0 && values[i] == values[i - 1]) {
+						return false;
+					}
 				}
 			}
-
+		}
+		
+		//row check
+		for (int row = 0; row < 9; row++) {
+			int[] values = new int[9];
+			for (int col = 0; col < 9; col++) {
+				values[col] = sudoku.getValue(row, col);
+			}
 			Arrays.sort(values);
-			for(int i=1;i<9;i++){
+			for (int i = 1; i < values.length; i++) {
 				if (values[i] != 0 && values[i - 1] != 0 && values[i] == values[i - 1]) {
 					return false;
 				}
@@ -251,86 +257,63 @@ public class SudokuSolver{
 		}
 
 		//column check
-		for(int col=0;col<9;col++){
-			int[] values=new int[9];
-			for(int row=0;row<9;row++){
-				if(sudoku.sudokuBoard.get(row).get(col).size()==1){
-					values[col]=sudoku.sudokuBoard.get(row).get(col).get(0);
-				}
-				else{
-					values[col]=0;
-				}
+		for (int col = 0; col < 9; col++) {
+			int[] values = new int[9];
+			for (int row = 0; row < 9; row++) {
+				values[row] =sudoku.getValue(row, col);
+				
 			}
-
 			Arrays.sort(values);
-			for(int i=1;i<9;i++){
+			for (int i = 1; i < values.length; i++) {
 				if (values[i] != 0 && values[i - 1] != 0 && values[i] == values[i - 1]) {
 					return false;
 				}
 			}
 		}
-
-
-		//unit check
-		for(int unitR=0; unitR<3;unitR++){
-			for(int unitC=0;unitC<3;unitC++){
-				int[] values=new int[9];
-				int startR=unitR*3;
-				int startC=unitC*3;
-				int endR=unitR+3;
-				int endC=unitC+3;
-				int index=0;
-
-				for(int r=startR;r<endR;r++){	
-					for(int c=startC;c<endC;c++){
-						if(sudoku.sudokuBoard.get(r).get(c).size()==1){
-							values[index]=sudoku.sudokuBoard.get(r).get(c).get(0);
-						}
-						else{
-							values[index]=0;
-						}
-						index++;
-							
-					}	
-				}
-				Arrays.sort(values);
-				for(int i=1;i<index;i++){
-					if (values[i] != 0 && values[i - 1] != 0 && values[i] == values[i - 1]) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+			return true;
 	}
+
+	
 
 	/*===========================
 				main
 	============================*/
 	public static void main(String[] args){
 		Sudoku currentSudoku= new Sudoku ();
-		String path="/Users/Perlanie/Documents/Sudoku/JavaApp/sudoku.txt";
+		String path="/Users/Perlanie/Documents/Projects/Sudoku/JavaApp/sudoku.txt";
 		currentSudoku.initSudoku(path);
+		currentSudoku.printSudoku();
 		populateQueue(currentSudoku);
 
 		ArcConsistency3(currentSudoku);
-		System.out.println("\nSudoku After AC3");
-		for(int i=0;i<9;i++){
-			System.out.println(currentSudoku.sudokuBoard.get(i));
-		}
-		Sudoku copy=currentSudoku.sudokuCopy();
-		Sudoku result=backTrackingSearch(copy);
-		System.out.println("\nSudoku After backTrack");
-		for(int j=0;j<9;j++){
-			System.out.println(result.sudokuBoard.get(j));
-		}
-		if(isValidState(result)){
-			System.out.println("\nSudoku Solver has successfully solved the puzzle.\n");
-			result.printSudoku();
+
+		if(isValidState(currentSudoku)&&allVariablesFilled(currentSudoku)){
+			System.out.println("\nSudoku Solver has successfully solved the puzzle using AC3.\n");
+			currentSudoku.printSudoku();
 		}
 		else{
-			System.out.println("\nERROR: Sudoku Solver has reached an invalid state. No Solution.");
+			System.out.println("\nSudoku After AC3");
+			for(int i=0;i<9;i++){
+				System.out.println(currentSudoku.sudokuBoard.get(i));
+			}
+			Sudoku copy=currentSudoku.sudokuCopy();
+			Sudoku result=backTrackingSearch(copy);
+			
+			if(result!=null){
+				if(isValidState(result)){
+					System.out.println("\nSudoku Solver has successfully solved the puzzle using AC3 and Back Tracking.\n");
+					result.printSudoku();
+				}
+				else{
+					System.out.println("\nERROR: Sudoku Solver has reached an invalid state. No Solution.");
+				}
+			}
+			else{
+				System.out.println("\nERROR: Sudoku Solver has reached a null state. No Solution.");
+			}
+		
 		}
+		
 
 	
 	}
@@ -342,4 +325,3 @@ public class SudokuSolver{
 
 
 }
-

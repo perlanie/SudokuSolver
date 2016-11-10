@@ -141,7 +141,25 @@ public class Sudoku{
 
 		}
 	}
-
+	/*====================================================================
+		getValue: gets the value of the domain. 0 if it is not assigned
+	----------------------------------------------------------------------
+		row: the x position of the variable
+		col: the y position of the variable
+	=====================================================================*/
+	public int getValue(int row, int col){
+		ArrayList<Integer>domain=this.getDomain(row,col);
+		if(domain.size()==1){
+			return (int)domain.get(0);
+		}
+		else{
+			int val=0;
+			return val;
+		}
+	}
+	/*====================================================================
+		printSudoku: prints the sudoku board
+	=====================================================================*/
 	public void printSudoku(){
 		for(int r=0;r<9;r++){
 			String row="";
@@ -149,7 +167,12 @@ public class Sudoku{
 				System.out.println("----------------------------------");
 			}
 			for(int c=0;c<9;c++){
-				row=row+this.getDomain(r,c);
+				if(this.getDomain(r,c).size()==1){
+					row=row+this.getDomain(r,c);
+				}
+				else{
+					row=row + "[ ]";
+				}
 				if(((c+1)%3==0)&&c!=8){
 					row=row+" | ";
 				}
